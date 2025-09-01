@@ -2,15 +2,23 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
+from discord import app_commands
+# from discord.app_commands import Choice, CommandTree, Option, OptionType
+
 
 load_dotenv()  
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 intents = discord.Intents.all()
 bot = commands.Bot("!",intents=intents)
-
+# carrega automaticamente todos as cogs
+async def carregar_cogs():
+    for arquivo in os.listdir('cogs'):
+        if arquivo.endswith('.py'):
+            await bot.load_extension(f"cogs.{arquivo[:-3]}")
 @bot.event
 async def on_ready():
+    await carregar_cogs()
     print("Bot online!")
 
 # saudações
@@ -22,29 +30,8 @@ async def greet(ctx):
 @bot.command()
 async def speak(ctx:commands.Context, * , text):
     await ctx.send(text)
-# bem vindo ao novo user
-@bot.event
-async def on_member_join(member:discord.Member):
-# pega id do canal 
-    channel = bot.get_channel(1404469031397888030)
-    await channel.send(f"{member.mention}  ˗ˏˋ ꒰ 🍓🍒🍄 ꒱ ˎˊ˗ se juntou ao nosso partido!")
-# reação e marca user
-# event quando user sai do server
-@bot.event
-async def on_member_remove(member:discord.Member,*,  motivo:str ="Não é confiável!!!!!" ):
-    channel_logs = discord.utils.get(member.guild.text_channels, name="logs")
-    if channel_logs:
-        embed = discord.Embed(
-            title=f" 𝕱𝖚𝖈𝖐 𝖞𝖔𝖚 {member.name} saiu do nosso partido!",
-            color=discord.Color.red()
-        )
-        embed.set_image(url=member.display_avatar.url, inline=False)
-        embed.add_field(reason=motivo, inline=False )
-        
-        await channel_logs.send(embed=embed)
-@bot.event
-async def on_reaction_add(reaction:discord.Reaction, member:discord.Member):
-    await reaction.message.reply(f"O membro {member.name} reagiu a messagem com {reaction.emoji}")
+
+
     
     # ping
 @bot.command()
