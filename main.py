@@ -23,13 +23,26 @@ async def greet(ctx):
 async def speak(ctx:commands.Context, * , text):
     await ctx.send(text)
 # bem vindo ao novo user
-@bot.command()
+@bot.event
 async def on_member_join(member:discord.Member):
 # pega id do canal 
     channel = bot.get_channel(1404469031397888030)
     await channel.send(f"{member.mention}  ˗ˏˋ ꒰ 🍓🍒🍄 ꒱ ˎˊ˗ se juntou ao nosso partido!")
 # reação e marca user
-@bot.command()
+# event quando user sai do server
+@bot.event
+async def on_member_remove(member:discord.Member,*,  motivo:str ="Não é confiável!!!!!" ):
+    channel_logs = discord.utils.get(member.guild.text_channels, name="logs")
+    if channel_logs:
+        embed = discord.Embed(
+            title=f" 𝕱𝖚𝖈𝖐 𝖞𝖔𝖚 {member.name} saiu do nosso partido!",
+            color=discord.Color.red()
+        )
+        embed.set_image(url=member.display_avatar.url, inline=False)
+        embed.add_field(reason=motivo, inline=False )
+        
+        await channel_logs.send(embed=embed)
+@bot.event
 async def on_reaction_add(reaction:discord.Reaction, member:discord.Member):
     await reaction.message.reply(f"O membro {member.name} reagiu a messagem com {reaction.emoji}")
     
@@ -46,21 +59,22 @@ async def ping (ctx):
     
     # ajuda
 @bot.command()
-async def helping(ctx):
+async def help_me(ctx):
     commands = """
     
     ⛧°。 ⋆༺♱༻⋆。 °⛧ Comandos disponiveis: ⛧°。 ⋆༺♱༻⋆。 °⛧
         '!greet -> comprimenta user.
         '!speak -> repete texto inserido pelo user.
         '!ping -> Mostra a latência do Bot.
-        '!help -> Mostra comandos disponiveis.
+        '!help_me -> Mostra comandos disponiveis.
         '!soma -> Mostra a soma de dois números.
         '!ban -> Banir membro.
         '!kick -> Dar kick em membro folgado.
         '!unban -> Desbanir usuário.
         '!clear -> Limpar o chat. 
         '!view_avatar ->Mostra avatar do membro.
-        
+        '!music -> mostra música que o user está ouvindo.
+        '!list_members -> mostra membros do server. 
         """
     await ctx.send(commands)
     # soma
@@ -125,7 +139,7 @@ async def view_avatar(ctx, member:discord.Member = None):
             color = discord.Color.red()
             
         )
-        embed.set_image(url=membro.display_avatar.url)  # mostra avatar (ou padrão)
+        embed.set_image(url=membro.display_avatar.url)  
         embed.set_footer(text=f"Pedido por {ctx.author}", icon_url=ctx.author.display_avatar.url)
 
         await ctx.send(embed=embed)
@@ -133,13 +147,44 @@ async def view_avatar(ctx, member:discord.Member = None):
     except Exception as e:
        if member not in discord.Member:
            await ctx.send(f"Não encontrei o membro {membro} nesse server!.ERRO:{e}")
-           
-           
-
-# memes
-# musicas do perfil
-# programção 
+ # musicas do perfil
+@bot.command()
+async def music(ctx, member: discord.Member = None):
+    membro = member or ctx.author
+    atividade = None
+    
+    # verifica atividades do membro
+    for activity in membro.activities:
+        if isinstance(activity, discord.Spotify):
+            atividade = activity
+            break
+    
+    if atividade:  # checa fora do loop
+        embed = discord.Embed(
+            title=f"🎧 {membro.name} está ouvindo música",
+            color=discord.Color.green()
+        )
+        embed.add_field(name="Música", value=atividade.title, inline=False)
+        embed.add_field(name="Artista", value=", ".join(atividade.artists), inline=False)
+        embed.add_field(name="Álbum", value=atividade.album, inline=False)
+        embed.set_thumbnail(url=atividade.album_cover_url)  # capa do álbum
+        await ctx.send(embed=embed)
+    else:
+        await ctx.send(f"{membro.name} não está ouvindo nada no Spotify agora 🎵")
 # members servidores
+@bot.command
+async def list(ctx):
+    membros = ctx.guild.members
+    nomes = [m.display_name for m in membros] 
+    response = "/n".join(nomes)
+    
+    if len(response) > 200:
+         await ctx.send(f"Os membros são muitos vou gerar um arquivo!") 
+         with open("membros.txt", "w", endcoding="utf-8") as f:
+             f.write(response)
+             await ctx.send(file=discord.File("membros.txt"))
+    else:
+        await ctx.send(response)
 # xinga user ao sair
 # inicia o bot
 bot.run(TOKEN)
