@@ -1,9 +1,10 @@
 import os
 from dotenv import load_dotenv
 import discord
+from discord import ui
 from discord.ext import commands
 from discord import app_commands
-# from discord.app_commands import Choice, CommandTree, Option, OptionType
+
 
 
 load_dotenv()  
@@ -12,6 +13,65 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 intents = discord.Intents.all()
 bot = commands.Bot("!",intents=intents)
 # carrega automaticamente todos as cogs
+
+
+# utiliza ui components(formulário)
+class EnqueteView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)  # timeout=None → a view não expira
+
+    # Botão 👍
+    @discord.ui.button(label="👍 Sim", style=discord.ButtonStyle.success, custom_id="sim")
+    async def sim_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message(
+            f"{interaction.user.mention} votou: **Sim 👍**",
+            ephemeral=True  # só o usuário vê a resposta
+        )
+
+    # Botão 👎
+    @discord.ui.button(label="👎 Não", style=discord.ButtonStyle.danger, custom_id="nao")
+    async def nao_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message(
+            f"{interaction.user.mention} votou: **Não 👎**",
+            ephemeral=True
+        )
+
+    # Select (menu de opções)
+    @discord.ui.select(
+        placeholder="Escolha uma opção",
+        options=[
+            discord.SelectOption(label="Opção 1", description="Primeira opção"),
+            discord.SelectOption(label="Opção 2", description="Segunda opção"),
+        ]
+    )
+    async def select_callback(self, interaction: discord.Interaction, select: discord.ui.Select):
+        escolha = select.values[0]
+        await interaction.response.send_message(
+            f"{interaction.user.mention} escolheu: **{escolha}** 🎉",
+            ephemeral=True
+        )
+
+
+@bot.command()
+async def enquete(ctx):
+    await ctx.reply("Escolha sua resposta:", view=EnqueteView())
+
+
+# img
+
+# buttons
+# message
+# exibir resultados
+
+
+
+
+
+
+
+
+
+
 async def carregar_cogs():
     for arquivo in os.listdir('cogs'):
         if arquivo.endswith('.py'):
@@ -62,6 +122,7 @@ async def help_me(ctx):
         '!view_avatar ->Mostra avatar do membro.
         '!music -> mostra música que o user está ouvindo.
         '!list_members -> mostra membros do server. 
+         '!enquete --> gera enquete.
         """
     await ctx.send(commands)
     # soma
