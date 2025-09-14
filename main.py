@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord import ui
+from discord import app_commands
 from discord.ext import commands
 from discord import app_commands
 
@@ -19,13 +20,15 @@ bot = commands.Bot("!",intents=intents)
 class EnqueteView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)  # timeout=None → a view não expira
-
-    # Botão 👍
+    
+    # img
+   
     @discord.ui.button(label="👍 Sim", style=discord.ButtonStyle.success, custom_id="sim")
     async def sim_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_message(
             f"{interaction.user.mention} votou: **Sim 👍**",
-            ephemeral=True  # só o usuário vê a resposta
+            ephemeral=True  
+            # só o usuário vê a resposta
         )
 
     # Botão 👎
@@ -36,7 +39,7 @@ class EnqueteView(discord.ui.View):
             ephemeral=True
         )
 
-    # Select (menu de opções)
+  
     @discord.ui.select(
         placeholder="Escolha uma opção",
         options=[
@@ -54,21 +57,15 @@ class EnqueteView(discord.ui.View):
 
 @bot.command()
 async def enquete(ctx):
-    await ctx.reply("Escolha sua resposta:", view=EnqueteView())
-
-
-# img
-
-# buttons
-# message
-# exibir resultados
-
-
-
-
-
-
-
+     embed = discord.Embed(
+        title = "Enquete Base",
+        description = "gato sigma",
+        color = discord.Color.purple()
+    )
+     embed.set_image(url="attachment://gato1.jpeg")
+    # Botão 👍
+     file = discord.File("imgs/gato1.jpeg", filename="gato1.jpeg")
+     await ctx.reply("Escolha sua resposta:", view=EnqueteView(), file=file, embed=embed)
 
 
 

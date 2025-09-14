@@ -14,8 +14,16 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         channel = self.bot.get_channel(1404469031397888030)
+        embed = discord.Embed(
+            title = f"{member.name} se juntouu ao Partido!!"
+            image = ""
+            color=discord.Color.red()
+        )
+        embed.set_image(url=member.display_avatar.url) 
+        embed.set_image(url="attachment://gato2.jpg")
+        file = discord.File("imgs/gato2.jpeg", filename="gato2.jpg")
         if channel:
-            await channel.send(f"{member.mention} ˗ˏˋ ꒰ 🍓🍒🍄 ꒱ ˎˊ˗ se juntou ao nosso partido!")
+            await channel.send(embed=embed)
 # event quando user sai do server
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
@@ -26,6 +34,8 @@ class Events(commands.Cog):
                 color=discord.Color.red()
             )
             embed.set_image(url=member.display_avatar.url)
+            embed.set_image(url="attachment://gato3.jpg")
+            file = discord.File("imgs/gato3.jpg", filename="gato3.jpg")
             embed.add_field(name="Motivo", value="Não é confiável!!!!!", inline=False)
             await channel_logs.send(embed=embed)
 # quando um user reage 
